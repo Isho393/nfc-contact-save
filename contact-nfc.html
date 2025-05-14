@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enregistrement du Contact</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f4f4f4;
+    }
+    .container {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      max-width: 400px;
+      margin: auto;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    #qrcode {
+      margin-top: 20px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Créer un QR Code de Contact</h2>
+    <input type="text" id="prenom" placeholder="Prénom">
+    <input type="text" id="nom" placeholder="Nom">
+    <input type="tel" id="telephone" placeholder="Téléphone">
+    <button onclick="genererQRCode()">Générer le QR Code</button>
+    <div id="qrcode"></div>
+  </div>
+
+  <script>
+    function genererQRCode() {
+      const prenom = document.getElementById("prenom").value.trim();
+      const nom = document.getElementById("nom").value.trim();
+      const telephone = document.getElementById("telephone").value.trim();
+
+      if (!prenom || !nom || !telephone) {
+        alert("Veuillez remplir tous les champs.");
+        return;
+      }
+
+      const vCardData = `BEGIN:VCARD\nVERSION:3.0\nN:${nom};${prenom};;;\nFN:${prenom} ${nom}\nTEL;TYPE=CELL:${telephone}\nEND:VCARD`;
+
+      const qrCodeDiv = document.getElementById("qrcode");
+      qrCodeDiv.innerHTML = ""; // Clear previous QR
+      new QRCode(qrCodeDiv, {
+        text: vCardData,
+        width: 256,
+        height: 256,
+      });
+    }
+  </script>
+</body>
+</html>
+
