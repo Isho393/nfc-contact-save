@@ -1,75 +1,123 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Enregistrement du Contact</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Formulaire de contact - QR Code</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
-      padding: 20px;
-      background-color: #f4f4f4;
+      padding: 2rem;
+      background-color: #f9f9f9;
+      text-align: center;
     }
-    .container {
-      background: white;
+    form {
+      background-color: white;
+      padding: 1.5rem;
       border-radius: 10px;
-      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
       max-width: 400px;
-      margin: auto;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin: 2rem auto;
     }
-    input, button {
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+      text-align: left;
+    }
+    input {
       width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      border-radius: 5px;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
       border: 1px solid #ccc;
+      border-radius: 5px;
     }
     button {
-      background-color: #007BFF;
+      padding: 0.75rem 1.5rem;
+      background-color: #28a745;
       color: white;
       border: none;
+      border-radius: 5px;
       cursor: pointer;
+      font-size: 1rem;
+      margin-top: 0.5rem;
     }
     #qrcode {
-      margin-top: 20px;
-      text-align: center;
+      margin-top: 1rem;
+    }
+    img.logo {
+      max-width: 120px;
+      margin: 1rem auto;
+    }
+    #downloadBtn {
+      display: none;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Créer un QR Code de Contact</h2>
-    <input type="text" id="prenom" placeholder="Prénom">
-    <input type="text" id="nom" placeholder="Nom">
-    <input type="tel" id="telephone" placeholder="Téléphone">
-    <button onclick="genererQRCode()">Générer le QR Code</button>
-    <div id="qrcode"></div>
-  </div>
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/OpenAI_Logo.svg/512px-OpenAI_Logo.svg.png" alt="Logo entreprise" class="logo">
+
+  <form id="contactForm">
+    <h2>Ajouter un contact</h2>
+    <label for="prenom">Prénom :</label>
+    <input type="text" id="prenom" name="prenom" required />
+
+    <label for="nom">Nom :</label>
+    <input type="text" id="nom" name="nom" required />
+
+    <label for="tel1">Téléphone 1 :</label>
+    <input type="tel" id="tel1" name="tel1" required />
+
+    <label for="tel2">Téléphone 2 (facultatif) :</label>
+    <input type="tel" id="tel2" name="tel2" />
+
+    <button type="submit">Générer le QR Code</button>
+  </form>
+
+  <div id="qrcode"></div>
+  <button id="downloadBtn">Télécharger le QR Code</button>
 
   <script>
-    function genererQRCode() {
+    const form = document.getElementById("contactForm");
+    const qrContainer = document.getElementById("qrcode");
+    const downloadBtn = document.getElementById("downloadBtn");
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      qrContainer.innerHTML = "";
+      downloadBtn.style.display = "none";
+
       const prenom = document.getElementById("prenom").value.trim();
       const nom = document.getElementById("nom").value.trim();
-      const telephone = document.getElementById("telephone").value.trim();
+      const tel1 = document.getElementById("tel1").value.trim();
+      const tel2 = document.getElementById("tel2").value.trim();
 
-      if (!prenom || !nom || !telephone) {
-        alert("Veuillez remplir tous les champs.");
-        return;
+      let vCard = `BEGIN:VCARD\nVERSION:3.0\nN:${nom};${prenom};;;\nFN:${prenom} ${nom}\nTEL;TYPE=CELL:${tel1}`;
+      if (tel2.trim() !== "") {
+        vCard += `\nTEL;TYPE=CELL:${tel2}`;
       }
+      vCard += `\nEND:VCARD`;
 
-      const vCardData = `BEGIN:VCARD\nVERSION:3.0\nN:${nom};${prenom};;;\nFN:${prenom} ${nom}\nTEL;TYPE=CELL:${telephone}\nEND:VCARD`;
-
-      const qrCodeDiv = document.getElementById("qrcode");
-      qrCodeDiv.innerHTML = ""; // Clear previous QR
-      new QRCode(qrCodeDiv, {
-        text: vCardData,
+      const qrCode = new QRCode(qrContainer, {
+        text: vCard,
         width: 256,
         height: 256,
       });
-    }
+
+      setTimeout(() => {
+        const img = qrContainer.querySelector("img");
+        if (img) {
+          downloadBtn.style.display = "inline-block";
+          downloadBtn.onclick = () => {
+            const a = document.createElement("a");
+            a.href = img.src;
+            a.download = `${prenom}_${nom}_qrcode.png`;
+            a.click();
+          };
+        }
+      }, 500);
+    });
   </script>
 </body>
 </html>
-
